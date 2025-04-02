@@ -1,6 +1,7 @@
 from turtle import *
 import time
-
+from food import Food
+from scoreboard import ScoreBoard
 from snake import Snake
 
 screen = Screen()
@@ -10,6 +11,8 @@ screen.title("My Snake Game")
 screen.tracer(0) # enables code to happen without showing on screen
 
 snake = Snake()
+food = Food()
+scoreboard = ScoreBoard()
 
 screen.listen()
 screen.onkey(snake.up,"Up")
@@ -20,8 +23,24 @@ screen.onkey(snake.right,"Right")
 game_is_on = True
 while game_is_on:
     screen.update() # updates screen hidden by tracer method
-    time.sleep(1) # delays by 1 second
-
+    time.sleep(0.1) # delays by 0.1 second
     snake.move()
+
+    # Detect collision with food
+    if snake.head.distance(food) < 15: #check distance between food and snake
+        food.refresh()
+        snake.extend()
+        scoreboard.inc_score()
+
+    #Detect collision with wall
+    if snake.head.xcor() > 280 or snake.head.xcor() < -280 or snake.head.ycor() > 280 or snake.head.ycor() < -280:
+        game_is_on = False
+        scoreboard.game_over()
+
+    # Detect collision with tail
+    for segment in snake.segments[1:]: # Python slicing ie returns the list from element 1 to the end
+        if snake.head.distance(segment) < 10:
+            game_is_on = False
+            scoreboard.game_over()
 
 screen.exitonclick()
